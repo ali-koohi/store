@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">store</string>
+    <string name="product_type">نوع کالا</string>
+    <string name="view_all">مشاهده همه</string>
+</resources>
