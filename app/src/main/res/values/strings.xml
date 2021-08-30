@@ -2,4 +2,9 @@
     <string name="app_name">store</string>
     <string name="product_type">نوع کالا</string>
     <string name="view_all">مشاهده همه</string>
+    <string name="no_more_results">No more results…</string>
+    <string name="field_name">name :</string>
+    <string name="field_price">price :</string>
+    <string name="field_rate">rate :</string>
+    <string name="field_create_at">create_at :</string>
 </resources>

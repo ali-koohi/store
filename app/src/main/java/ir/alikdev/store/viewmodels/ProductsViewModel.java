@@ -11,6 +11,8 @@ import androidx.lifecycle.Observer;
 
 import java.util.List;
 
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.Disposable;
 import ir.alikdev.store.models.Product;
 import ir.alikdev.store.repositories.StoreRepository;
 import ir.alikdev.store.util.Resource;
@@ -22,6 +24,8 @@ public class ProductsViewModel extends AndroidViewModel {
     private static final String TAG = "ProductsViewModel";
 
     private StoreRepository repository;
+
+    private CompositeDisposable disposable = new CompositeDisposable();
 
     private MediatorLiveData<Resource<List<Product>>> products=new MediatorLiveData<>();
 
@@ -129,4 +133,13 @@ public class ProductsViewModel extends AndroidViewModel {
         }
     }
 
+    public void addDisposable(Disposable d){
+        disposable.add(d);
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        disposable.clear();
+    }
 }

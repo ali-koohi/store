@@ -19,11 +19,20 @@ import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableEmitter;
+import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import ir.alikdev.store.adapter.OnProductListener;
 import ir.alikdev.store.adapter.ProductsRecyclerAdapter;
 import ir.alikdev.store.models.Category;
 import ir.alikdev.store.models.Product;
+import ir.alikdev.store.util.Constants;
 import ir.alikdev.store.util.Resource;
 import ir.alikdev.store.util.VerticalSpacingItemDecorator;
 import ir.alikdev.store.viewmodels.ProductsViewModel;
@@ -60,38 +69,76 @@ public class ProductsListActivity extends BaseActivity implements OnProductListe
         initSearchView();
     }
 
-    private void initChangeLayout(){
+    private void initChangeLayout() {
         changeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int currentType=adapter.changeLayout();
-                if(currentType == PRODUCTS_TYPE){
+                int currentType = adapter.changeLayout();
+                if (currentType == PRODUCTS_TYPE) {
                     changeLayout.setBackgroundResource(R.drawable.ic_baseline_view_list_24);
-                }else{
+                } else {
                     changeLayout.setBackgroundResource(R.drawable.ic_baseline_view_comfy_24);
                 }
             }
         });
     }
 
-    private  void initSearchView(){
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+    private void initSearchView() {
+        //our search will be execute after 500 millisecond after stop typing
+        //we are use rxjava for this operation
+        Observable<String> stringObservable = Observable.create(new ObservableOnSubscribe<String>() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
+            public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<String> emitter) throws Throwable {
 
-                searchProducts(1,viewModel.getCategoryId(),query);
-                return false;
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        if (!emitter.isDisposed()) {
+                            emitter.onNext(newText);
+                        }
+                        return false;
+                    }
+                });
+            }
+        })
+                .debounce(Constants.SEARCH_VIEW_TIMEOUT, TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+
+
+        stringObservable.subscribe(new io.reactivex.rxjava3.core.Observer<String>() {
+            @Override
+            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                viewModel.addDisposable(d);
             }
 
             @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
+            public void onNext(@io.reactivex.rxjava3.annotations.NonNull String s) {
+                Log.d(TAG, "onNext: "+s);
+                searchProducts(1, viewModel.getCategoryId(), s);
+            }
+
+            @Override
+            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
             }
         });
+
     }
 
     private void getCategoryIntent() {
-        if (getIntent().hasExtra("category") ) {
+        if (getIntent().hasExtra("category")) {
             Category category = getIntent().getParcelableExtra("category");
             viewModel.setCategoryId(category.getId());
             searchProducts(1, viewModel.getCategoryId(), "");
@@ -106,12 +153,12 @@ public class ProductsListActivity extends BaseActivity implements OnProductListe
             @Override
             public void onChanged(Resource<List<Product>> listResource) {
                 if (listResource != null) {
-                    Log.d(TAG, "onChanged: "+listResource.status);
-                    switch (listResource.status){
+                    Log.d(TAG, "onChanged: " + listResource.status);
+                    switch (listResource.status) {
                         case LOADING:
-                            if(viewModel.getPage() > 1 ){
+                            if (viewModel.getPage() > 1) {
                                 adapter.displayLoading();
-                            }else{
+                            } else {
                                 adapter.displayOnlyLoading();
                             }
                             break;
@@ -146,21 +193,21 @@ public class ProductsListActivity extends BaseActivity implements OnProductListe
     }
 
     private void initRecyclerView() {
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,2);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         gridLayoutManager.setSpanSizeLookup(spanSizeLookup);
 
         VerticalSpacingItemDecorator itemDecorator = new VerticalSpacingItemDecorator(30);
         recyclerView.addItemDecoration(itemDecorator);
         recyclerView.setLayoutManager(gridLayoutManager);
 
-        adapter = new ProductsRecyclerAdapter(initGlide(),this::OnProductClick);
+        adapter = new ProductsRecyclerAdapter(initGlide(), this::OnProductClick);
         recyclerView.setAdapter(adapter);
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if(!recyclerView.canScrollVertically(1)){
+                if (!recyclerView.canScrollVertically(1)) {
                     viewModel.nextPage();
                 }
             }
@@ -184,8 +231,8 @@ public class ProductsListActivity extends BaseActivity implements OnProductListe
     @Override
     public void OnProductClick(int position) {
 
-        Intent intent = new Intent(ProductsListActivity.this,ProductActivity.class);
-        intent.putExtra("product",adapter.getProduct(position));
+        Intent intent = new Intent(ProductsListActivity.this, ProductActivity.class);
+        intent.putExtra("product", adapter.getProduct(position));
         startActivity(intent);
 
     }

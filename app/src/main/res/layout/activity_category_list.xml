@@ -14,8 +14,9 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll|enterAlways"
             app:title="@string/app_name"
-            app:layout_scrollFlags="scroll|enterAlways">
+            >
 
             <androidx.appcompat.widget.SearchView
                 android:id="@+id/search_view"

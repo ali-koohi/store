@@ -20,7 +20,9 @@
                 android:id="@+id/change_layout"
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@drawable/ic_baseline_view_list_24"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_baseline_view_list_24"
+                android:background="@drawable/white_background"
                 />
             <androidx.appcompat.widget.SearchView
                 android:id="@+id/search_view"
@@ -38,7 +40,7 @@
         android:id="@+id/products_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:listitem="@layout/product_item"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+        tools:listitem="@layout/product_item"
         />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
