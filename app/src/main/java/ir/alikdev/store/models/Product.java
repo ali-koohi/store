@@ -9,9 +9,6 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-import static ir.alikdev.store.adapter.ProductsRecyclerAdapter.PRODUCTS_DETAILS_TYPE;
-import static ir.alikdev.store.adapter.ProductsRecyclerAdapter.PRODUCTS_TYPE;
-
 @Entity(tableName = "product")
 public class Product implements Parcelable {
 
@@ -25,8 +22,9 @@ public class Product implements Parcelable {
     @ColumnInfo(name = "name")
     private String name;
 
+    // do not use float and double data type as currency instead use BigDecimal
     @ColumnInfo(name = "price")
-    private float price;
+    private long price;
 
     @ColumnInfo(name = "image_url")
     private String image_url;
@@ -37,7 +35,7 @@ public class Product implements Parcelable {
     @ColumnInfo(name = "create_at")
     private String create_at;
 
-    public Product(int id, int categories_id, String name, float price, String image_url, float rate, String create_at) {
+    public Product(int id, int categories_id, String name, long price, String image_url, float rate, String create_at) {
         this.id = id;
         this.categories_id = categories_id;
         this.name = name;
@@ -55,7 +53,7 @@ public class Product implements Parcelable {
         id = in.readInt();
         categories_id = in.readInt();
         name = in.readString();
-        price = in.readFloat();
+        price = in.readLong();
         image_url = in.readString();
         rate = in.readFloat();
         create_at = in.readString();
@@ -83,7 +81,7 @@ public class Product implements Parcelable {
         parcel.writeInt(id);
         parcel.writeInt(categories_id);
         parcel.writeString(name);
-        parcel.writeFloat(price);
+        parcel.writeLong(price);
         parcel.writeString(image_url);
         parcel.writeFloat(rate);
         parcel.writeString(create_at);
@@ -113,11 +111,11 @@ public class Product implements Parcelable {
         this.name = name;
     }
 
-    public float getPrice() {
+    public long getPrice() {
         return price;
     }
 
-    public void setPrice(float price) {
+    public void setPrice(long price) {
         this.price = price;
     }
 

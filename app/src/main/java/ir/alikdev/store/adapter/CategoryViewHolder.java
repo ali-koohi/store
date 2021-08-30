@@ -61,12 +61,12 @@ public class CategoryViewHolder extends RecyclerView.ViewHolder implements View.
             setImage(product.getImage_url(),image);
             name.setText(product.getName());
             /**
-             1) persian currency is rial and  its need long type so i don't need float
-             2)but in case you are using dollar or other floating currency simply use this format "%1$,.2f"
+             1) persian currency is rial and  its need long type so i don't need decimal
+             2)but in case you are using dollar or other currency simply use this format "%1$,.2f"
              example1:  1200.23 its convert to 1,200 with this format "%1$,.0f"
              example2:  1200.23 its convert to 1,200.23 with this format "%1$,.2f"
              **/
-            price.setText(String.format("%1$,.0f",product.getPrice()));
+            price.setText(String.format("%1$,d",product.getPrice()));
             rate.setText(String.valueOf(product.getRate()));
 
             layout.addView(view);

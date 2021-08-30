@@ -102,7 +102,7 @@ public class ProductActivity extends BaseActivity {
                     .into(image);
 
             name.setText(product.getName());
-            price.setText(String.valueOf(product.getPrice()));
+            price.setText(String.format("%1$,d",product.getPrice()));
             rate.setText(String.valueOf(product.getRate()));
             create_at.setText(product.getCreate_at());
         }
